@@ -9,6 +9,11 @@
   "author": "Danilo Arantes",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^12.2.0"
-  }
+    "@discordjs/opus": "^0.3.2",
+    "discord.js": "^12.2.0",
+    "ffmpeg-static": "^4.2.2",
+    "node-opus": "^0.3.3",
+    "ytdl-core": "^2.1.4"
+  },
+  "devDependencies": {}
 }

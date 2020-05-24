@@ -1,30 +1,22 @@
 const ytdl = require('ytdl-core');
+//const Queue = require('./queue.js');
 
 module.exports = {
-	salve: {
+    salve: {
 	name: 'salve',
 	description: 'Salve',
 	execute(message, args) {
 		message.channel.send('Saaaalve parça\nÉ nois ou não é nois?');
-    }},
-    ytplay: {
-        name: 'ytplay',
-        execute(message, args) {
-
-            const voiceChannel = message.member.voice.channel;
-
-            if (!voiceChannel) {
-                return message.reply('Entra num canal de voz, né mongol.');
+    }}
+    ,kick: {
+        name: 'kick',
+        execute(message) {
+            if (!message.mentions.users.size) {
+                return message.reply('No user specified to kick');
             }
-    
-            voiceChannel.join().then(connection => {
-                const stream = ytdl(args[0], { filter: 'audioonly', 
-                                                highWaterMark: 1<<25,           /* Stream was ending too soon. This seems to fix it :) https://bit.ly/2zXEZ4H */
-            }); 
-                const dispatcher = connection.play(stream);
-                dispatcher.on('end', (reason) => _onTrackEnd(reason, message));
-            });
-
+            const taggedUser = message.mentions.users.first();
         }
-    },
+    },  
 };
+
+const memes = ["https://www.youtube.com/watch?v=hjGZLnja1o8", "https://www.youtube.com/watch?v=cE0wfjsybIQ", "https://www.youtube.com/watch?v=oT3mCybbhf0", "https://www.youtube.com/watch?v=PHgc8Q6qTjc", "https://www.youtube.com/watch?v=uE-1RPDqJAY", "https://www.youtube.com/watch?v=ZZ5LpwO-An4", "https://www.youtube.com/watch?v=9oMXMj-8Sqg", "https://www.youtube.com/watch?v=609HhzQ6zfU", "https://www.youtube.com/watch?v=E8H-67ILaqc", "https://www.youtube.com/watch?v=4fWyzwo1xg0&feature=youtu.be", ]

@@ -10,9 +10,14 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
+    "axios": "^0.19.2",
     "discord.js": "^12.2.0",
+    "dotenv": "^8.2.0",
     "ffmpeg-static": "^4.2.2",
+    "googleapis": "^51.0.0",
     "node-opus": "^0.3.3",
+    "qs": "^6.9.4",
+    "querystring": "^0.2.0",
     "ytdl-core": "^2.1.4"
   },
   "devDependencies": {}

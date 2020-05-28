@@ -1,10 +1,39 @@
 /* Imports */
+require('dotenv').config();
 const fs = require('fs');
 const Discord = require('discord.js');
+const axios = require('axios');
 const { prefix, token } = require('./config.json');
 const commands = require('./commands.js');
-//const Queue = require('./queue.js');
+const querystring = require('querystring');
 const ytdl = require('ytdl-core');
+const {google} = require('googleapis');
+const qs = require('qs');
+
+// initialize the Youtube API library
+const youtube = google.youtube({version: 'v3', auth: process.env.APIKEY});
+
+
+/* Following Client Authentication Flow, the credentials must be base64 encoded. 
+ * https://developer.spotify.com/documentation/general/guides/authorization-guide/#client-credentials-flow
+ * Using url-encoded http requests: https://github.com/axios/axios#using-applicationx-www-form-urlencoded-format
+ */
+
+var encoded_credentials = Buffer.from(process.env.SPOTIFY_CLIENT_ID + ':' + process.env.SPOTIFY_SECRET).toString('base64');
+var spotifyToken = '';
+
+axios({ method: 'post',
+        url: 'https://accounts.spotify.com/api/token',
+        data: qs.stringify({ grant_type: 'client_credentials' }),
+        headers: {
+        'Authorization': 'Basic ' + encoded_credentials,
+        'Content-Type':'application/x-www-form-urlencoded'
+        }
+    }).then(function (response) {
+        spotifyToken = response.data.access_token;
+    }).catch(function (error) {
+        console.log(error.message);
+    });
 
 /* Set client connection and Create command collection */
 const client = new Discord.Client();
@@ -28,12 +57,16 @@ client.once('ready', () => {
 client.on('message', message => {
 
 	/* Mandar o Paulo tomar no cu */
-	if (message.content.startsWith("é nois")) {
+	if (message.content.toLowerCase().startsWith("é nois")) {
 		if (message.author.username != "paulo cesar") {
 			message.channel.send(`${message.author} é nois pra caralhooo`);
 		} else {
 			message.channel.send(`${message.author} vai tomar no cu`);
 		}
+	}
+
+	if (message.content.startsWith("-play")) {
+		message.channel.send(`${message.author} Tomara que morra no inferno, judas do caralho.`);
 	}
 
 	/* Check if message is valid command */
@@ -49,13 +82,19 @@ client.on('message', message => {
   
 	/* Handle Command */
 	if (command === 'salve') {
-    	client.commands.get('salve').execute(message, args);
+    client.commands.get('salve').execute(message, args);
 	} else if (command === 'play') {
-		execute(message, args, serverQueue)
-	} else if (command === 'skip') {
+    if (args[0].startsWith('spotify')) {
+      playSpotify(message, args, serverQueue);
+    } else {
+		  execute(message, args, serverQueue)
+    }
+ 	} else if (command === 'skip') {
 		skip(message, serverQueue);
 	} else if (command === 'stop') {
 		stop(message, serverQueue);
+	} else if (command === 'leave') {
+		leave(message, serverQueue);
 	}
 });
 
@@ -68,10 +107,27 @@ async function execute(message, args, serverQueue) {
 		return message.reply('Entra num canal de voz, né mongol.');
 	}
 
-	//var validate = ytdl.validateURL(args[0]);  //TODO: validate that this is a valid yt URL
+	/* User did not pass argument */
+	if (!args[0]) {
+		return message.reply('tô com cara de mãe dináh, seu merda?');
+	}
+
+
+	/* TODO: Validate input for malicious and non-related urls */
+	var validate = ytdl.validateURL(args[0]);
+
+	if (!validate) {
+		var query = args.toString().replace(/,/g, " ");
+
+  	var search = await youtube.search.list({part:'snippet', q: query, maxResults: 1});
+  	var url = "https://www.youtube.com/watch?v=" + search.data.items[0].id.videoId;
+
+	}else {
+		var url = args[0];
+	}
 
 	/* Get video information */
-	const info = await ytdl.getInfo(args[0]);
+	const info = await ytdl.getInfo(url);
 
 	var song = {
 		title: info.title,
@@ -122,10 +178,11 @@ function play(guild, song) {
     const serverQueue = queue.get(guild.id);
 
 	/* No songs left on queue */
-    if (!song) {
-      serverQueue.voiceChannel.leave();
-      queue.delete(guild.id);
-      return;
+	if (!song) {
+		
+      		//serverQueue.voiceChannel.leave();
+      		queue.delete(guild.id);
+      		return;
 	}
 	
 	/* Create stream object from song url */
@@ -135,7 +192,7 @@ function play(guild, song) {
 
     var dispatcher = serverQueue.connection.play(stream);
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-    serverQueue.textChannel.send(`Tocando: ${song.title}`);
+    serverQueue.textChannel.send(`${song.title}`);
 
     /* Current Song is Over */
     dispatcher.on('finish', () => {
@@ -165,7 +222,56 @@ function skip(message, serverQueue) {
   serverQueue.connection.dispatcher.end();
 }
 
+/* Leave Channel */
+function leave(message, serverQueue) {
+  serverQueue.songs = [];
+  message.channel.send("flw mens");
+  serverQueue.connection.dispatcher.end();
+  serverQueue.voiceChannel.leave();
 
+}
+
+async function playSpotify(message, uri, serverQueue) {
+  uri = uri[0];
+  var playlist_Id = uri.substring(uri.lastIndexOf(':') + 1, uri.length);
+
+  //var songs = [];
+  songs = await getSpotifyPlaylist(message, playlist_Id, serverQueue);
+  //console.log(songs);
+
+}
+
+function getSpotifyPlaylist(message, playlist_Id, serverQueue) { 
+  var url = 'https://api.spotify.com/v1/playlists/' + playlist_Id + '/tracks'
+  console.log(url); 
+  axios.get(url, {headers: {
+            'Authorization': 'Bearer ' + spotifyToken,
+            'Content-Type': 'application/json',
+            'Content-Length': '0'
+    }})
+    .then(response => {
+      var output = '';
+      var data = response.data.items;
+      var songs = [];
+      
+      console.log("Message: "+message);
+      for (song in data) {
+//        execute(message, data[song].track.artists[0].name + " " + data[song].track.name, serverQueue);
+        songs[song] = data[song].track.artists[0].name + " " + data[song].track.name;
+      }
+
+      for (song in songs) {
+        execute(message, songs[song], serverQueue);
+      }
+
+      console.log(songs);
+      
+
+    })
+    .catch(error => {
+      console.log(error.message);
+    })
+}
 
 /* Bot LogIn */
 client.login(token);

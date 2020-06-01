@@ -241,31 +241,100 @@ async function playSpotify(message, uri, serverQueue) {
 
 }
 
-function getSpotifyPlaylist(message, playlist_Id, serverQueue) { 
+async function getSpotifyPlaylist(message, playlist_Id, serverQueue) { 
+  
+  const voiceChannel = message.member.voice.channel;
   var url = 'https://api.spotify.com/v1/playlists/' + playlist_Id + '/tracks'
-  console.log(url); 
+   
   axios.get(url, {headers: {
             'Authorization': 'Bearer ' + spotifyToken,
             'Content-Type': 'application/json',
             'Content-Length': '0'
     }})
-    .then(response => {
+    .then(async response => {
       var output = '';
       var data = response.data.items;
       var songs = [];
       
-      console.log("Message: "+message);
       for (song in data) {
-//        execute(message, data[song].track.artists[0].name + " " + data[song].track.name, serverQueue);
         songs[song] = data[song].track.artists[0].name + " " + data[song].track.name;
       }
 
+      var search_requests = [];
+      var info_requests = [];
+
       for (song in songs) {
-        execute(message, songs[song], serverQueue);
+        const request = await youtube.search.list({part:'snippet', q: songs[song], maxResults: 1});
+        search_requests.push(request); 
       }
 
-      console.log(songs);
-      
+      var songNames = [...songs];
+      console.log(songNames);
+
+      songs = [];
+
+      Promise.all(search_requests).then( responses => {
+          
+          for (response in responses) {
+            var url = "https://www.youtube.com/watch?v=" + responses[response].data.items[0].id.videoId;
+            var song_info = {
+              title: songNames[response],
+              url: url,          
+            };
+
+            console.log(song_info.title + " " + song_info.url);
+            songs.push(song);
+          }
+
+      });
+/*
+      for (song in songs) {
+        
+        var search = await youtube.search.list({part:'snippet', q: songs[song], maxResults: 1});
+        var url = "https://www.youtube.com/watch?v=" + search.data.items[0].id.videoId;
+        console.log(url);
+
+        const info = await ytdl.getInfo(url);
+        console.log(info);
+     
+        var song_info = {
+          title: info.title,
+          url: info.video_url,
+        };
+
+        console.log(song_info.url);
+
+        songs[song] = song_info;
+      }
+  */  
+      if(!serverQueue) {
+        /* Define Queue Contract */ 
+        const queueContruct = {
+          textChannel: message.channel,
+          voiceChannel: voiceChannel,
+          connection: null,
+          songs: songs,
+          volume: 5,
+          playing: true
+        };
+  
+        /* Set new queue */
+        queue.set(message.guild.id, queueContruct);
+
+        /* Join Voice Channel */
+        voiceChannel.join().then(connection => {
+          queueContruct.connection = connection;
+          play(message.guild, queueContruct.songs[0]);
+        });
+
+      } else {
+
+        for (song in songs) {
+          serverQueue.songs.push(songs[song]);
+        }
+  
+        return message.channel.send(`Playlist adicionada com sucesso, caralho!`);
+      }
 
     })
     .catch(error => {

@@ -1,20 +1,62 @@
-const ytdl = require('ytdl-core');
-//const Queue = require('./queue.js');
+const spotify = require('./spotify');
+const youtube = require('./youtube');
+const {queue} = require('./play');
 
 module.exports = {
     salve: {
-	name: 'salve',
-	description: 'Salve',
-	execute(message, args) {
-		message.channel.send('Saaaalve parça\nÉ nois ou não é nois?');
-    }}
-    ,kick: {
+        name: 'salve',
+        description: 'A friendly greeting message :)',
+        execute(message, args) {
+            message.channel.send('Saaaalve parça\nÉ nois ou não é nois?');
+        }
+    },kick: {
         name: 'kick',
+        description: '',
         execute(message) {
             if (!message.mentions.users.size) {
                 return message.reply('No user specified to kick');
             }
             const taggedUser = message.mentions.users.first();
+        }
+    },skip: {
+        name: 'skip',
+        description: 'Skips the current song',
+        execute(message, serverQueue) {
+            if (!serverQueue) {
+              message.channel.send("A queue ta vazia, mongol");
+            }  
+            serverQueue.connection.dispatcher.end();
+        }
+    },stop: {
+        name: 'stop',
+        description: 'Clears out song queue',
+        execute(message, serverQueue) {
+            serverQueue.songs = [];
+            message.channel.send("flw mens");
+            serverQueue.connection.dispatcher.end();
+        }
+    },leave: {
+        name: 'leave',
+        description: 'Makes bot leave the channel',
+        execute(message, serverQueue) {
+            if (serverQueue.songs) {
+                serverQueue.songs = [];
+            }
+            message.channel.send("flw mens");
+            serverQueue.connection.dispatcher.end();
+            serverQueue.voiceChannel.leave();
+        }
+    },youtube: {
+        name: 'youtube',
+        description: 'Searches and Plays songs from youtube',
+        execute(message, args, serverQueue) {
+            youtube.handler(message, args, serverQueue);
+        }
+    },spotify: {
+        name: 'spotify',
+        description: 'Gets a playlist from spotify and plays the songs using Youtube',
+        execute(message, serverQueue) {
+
         }
     },  
 };

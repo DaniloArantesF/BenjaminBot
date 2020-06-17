@@ -43,7 +43,8 @@ async function handleRequest(message, args, serverQueue) {
 			connection: null,
 			songs: [],
 			volume: 5,
-			playing: true
+			playing: true,
+			playingEmbed: null,
 		
 		};
 		/* Set new queue */
@@ -54,12 +55,16 @@ async function handleRequest(message, args, serverQueue) {
 		voiceChannel.join().then(connection => {
 			newQueue.connection = connection;
 			play(message.guild, newQueue.songs[0]);
+			message.delete();
 		});
 
 	} else { /* Queue is not empty */
 		serverQueue.songs.push(song);
-		return message.channel.send(`${song.title} foi adicionada à queue, seu merda!`);
+		message.channel.send(`${song.title} foi adicionada à queue, seu merda!`);
+		message.delete();
+		return;
 	}
 }
 
 module.exports.handler = handleRequest;
+module.exports.API = youtube;

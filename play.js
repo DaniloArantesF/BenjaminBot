@@ -1,3 +1,4 @@
+const Discord = require('discord.js');
 const ytdl = require('ytdl-core');
 
 /* Bot Queue Map */
@@ -20,10 +21,22 @@ function play(guild, song) {
 
     var dispatcher = serverQueue.connection.play(stream);
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-    serverQueue.textChannel.send(`${song.title}`);
+
+    const playingEmbed = new Discord.MessageEmbed()
+        .setColor('#b700ff')
+        .setTitle(song.title)
+        .setURL(song.url)
+        .setDescription(serverQueue.songs.length > 1 ? "Próxima música: " + serverQueue.songs[1].title : "")
+        .setThumbnail('https://media1.tenor.com/images/75f1a082d67bcd34cc4960131e905bed/tenor.gif?itemid=5505046');
+
+    serverQueue.textChannel.send(playingEmbed)
+        .then( message => {
+            serverQueue.playingEmbed = message;
+    });
 
     /* Current Song is Over */
     dispatcher.on('finish', () => {
+        serverQueue.playingEmbed.delete()
         serverQueue.songs.shift();
         play(guild, serverQueue.songs[0]);
 	});

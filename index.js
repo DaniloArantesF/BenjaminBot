@@ -55,6 +55,8 @@ client.on('message', message => {
 		client.commands.get('stop').execute(message, serverQueue);
 	} else if (command === 'leave') {
 		client.commands.get('leave').execute(message, serverQueue);
+	} else if (command === 'purge') {
+		client.commands.get('purge').execute(message);
 	}
 });
 

@@ -104,8 +104,8 @@ async function getSpotifyPlaylist(message, playlist_Id, serverQueue) {
               songs.push(song);
             }
         });
-   
         return songs;
+        
       })
       .catch(error => {
         console.log(error.message);

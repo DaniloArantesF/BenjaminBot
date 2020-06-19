@@ -51,6 +51,8 @@ client.on('message', message => {
     args[0].startsWith('spotify') ? client.commands.get('spotify').execute(message, args, serverQueue) : client.commands.get('youtube').execute(message, args, serverQueue)
  	} else if (command === 'skip') {
 		client.commands.get('skip').execute(message, serverQueue);
+	} else if (command === 'queue') {
+		client.commands.get('queue').execute(message, serverQueue);
 	} else if (command === 'stop') {
 		client.commands.get('stop').execute(message, serverQueue);
 	} else if (command === 'leave') {

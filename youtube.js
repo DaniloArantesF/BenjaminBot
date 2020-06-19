@@ -1,5 +1,6 @@
 /* Imports */
 require('dotenv').config();
+const Discord = require('discord.js');
 const {google} = require('googleapis');
 const ytdl = require('ytdl-core');
 const axios = require('axios');
@@ -45,7 +46,6 @@ async function handleRequest(message, args, serverQueue) {
 			volume: 5,
 			playing: true,
 			playingEmbed: null,
-		
 		};
 		/* Set new queue */
 		queue.set(message.guild.id, newQueue);
@@ -60,7 +60,21 @@ async function handleRequest(message, args, serverQueue) {
 
 	} else { /* Queue is not empty */
 		serverQueue.songs.push(song);
-		message.channel.send(`${song.title} foi adicionada à queue, seu merda!`);
+
+		const playingEmbed = new Discord.MessageEmbed()
+        	.setColor('#b700ff')
+        	.setTitle(serverQueue.songs[0].title)
+        	.setURL(serverQueue.songs[0].url)
+        	.setDescription("Próxima música: " + serverQueue.songs[1].title)
+			.setThumbnail('https://media1.tenor.com/images/75f1a082d67bcd34cc4960131e905bed/tenor.gif?itemid=5505046');
+		
+		serverQueue.playingEmbed.delete();
+
+		serverQueue.textChannel.send(playingEmbed)
+			.then( message => {
+				serverQueue.playingEmbed = message;
+		});
+
 		message.delete();
 		return;
 	}

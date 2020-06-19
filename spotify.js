@@ -79,6 +79,7 @@ async function getSpotifyPlaylist(message, playlist_Id, serverQueue) {
         var output = '';
         var data = response.data.items;
         var songs = [];
+
         for (song in data) {
           songs[song] = data[song].track.artists[0].name + " " + data[song].track.name;
         }
@@ -99,7 +100,7 @@ async function getSpotifyPlaylist(message, playlist_Id, serverQueue) {
                 title: songNames[response],
                 url: url,          
               };
-  
+
               console.log(song_info.title + " " + song_info.url);
               songs.push(song);
             }

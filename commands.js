@@ -1,3 +1,4 @@
+const Discord = require('discord.js');
 const spotify = require('./spotify');
 const youtube = require('./youtube');
 const {queue} = require('./play');
@@ -26,6 +27,28 @@ module.exports = {
               message.channel.send("A queue ta vazia, mongol");
             }  
             serverQueue.connection.dispatcher.end();
+        }
+    },queue: {
+        name: 'queue',
+        description: 'Displays current queue',
+        execute(message, serverQueue) {
+            if (!serverQueue || !serverQueue.songs) {
+                return message.channel.send("A queue ta vazia, mongol");
+            }  
+            
+            var songs = serverQueue.songs;
+
+            const queueEmbed = new Discord.MessageEmbed()
+                .setColor('#b700ff')
+                .setTitle('Server Queue')
+                .addFields(
+                    songs.map( (song) => {
+                        return { name: songs.indexOf(song) + ": " + song.title, value: song.url, inline: true }
+                    })
+                );
+
+            message.channel.send(queueEmbed);
+            message.delete();
         }
     },stop: {
         name: 'stop',

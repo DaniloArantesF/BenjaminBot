@@ -40,15 +40,24 @@ client.on('message', message => {
 
 	/* Parse Command */
 	const args = message.content.slice(prefix.length).split(/ +/);
+
+	if (!args) { args = ""}
+	
 	const command = args.shift().toLowerCase();
 	  
 	const serverQueue = queue.get(message.guild.id);
   
+	/* User did not pass argument */
+
+	if (!args[0] && command === 'play') {
+		return message.reply('tô com cara de mãe dináh, seu merda?');
+	}
+
 	/* Handle Command */
 	if (command === 'salve') {
-    client.commands.get('salve').execute(message, args);
+    	client.commands.get('salve').execute(message, args);
 	} else if (command === 'play') {
-    args[0].startsWith('spotify') ? client.commands.get('spotify').execute(message, args, serverQueue) : client.commands.get('youtube').execute(message, args, serverQueue)
+    	args[0].startsWith('spotify') ? client.commands.get('spotify').execute(message, args, serverQueue) : client.commands.get('youtube').execute(message, args, serverQueue)
  	} else if (command === 'skip') {
 		client.commands.get('skip').execute(message, serverQueue);
 	} else if (command === 'queue') {

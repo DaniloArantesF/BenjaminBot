@@ -16,10 +16,7 @@ async function handleRequest(message, args, serverQueue) {
 	if (!voiceChannel) {
 		return message.reply('Entra num canal de voz, né mongol.');
 	}
-	/* User did not pass argument */
-	if (!args[0]) {
-		return message.reply('tô com cara de mãe dináh, seu merda?');
-	}
+	
 	/* TODO: Validate input for malicious and non-related urls */
 	var validate = ytdl.validateURL(args[0]);
 

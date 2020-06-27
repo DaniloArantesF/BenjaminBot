@@ -1,7 +1,7 @@
 /* Imports */
 require('dotenv').config();
 const Discord = require('discord.js');
-const { prefix, token } = require('./config.json');
+const { prefix } = require('./config.json');
 const commands = require('./commands.js');
 const {queue} = require('./play');
 
@@ -72,4 +72,4 @@ client.on('message', message => {
 });
 
 /* Bot LogIn */
-client.login(token);
+client.login(process.env.DISCORD_TOKEN);

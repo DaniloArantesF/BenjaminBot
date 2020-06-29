@@ -40,15 +40,10 @@ client.on('message', message => {
 
 	/* Parse Command */
 	const args = message.content.slice(prefix.length).split(/ +/);
-
-	if (!args) { args = ""}
-	
 	const command = args.shift().toLowerCase();
-	  
 	const serverQueue = queue.get(message.guild.id);
   
 	/* User did not pass argument */
-
 	if (!args[0] && command === 'play') {
 		return message.reply('tô com cara de mãe dináh, seu merda?');
 	}
@@ -61,13 +56,15 @@ client.on('message', message => {
  	} else if (command === 'skip') {
 		client.commands.get('skip').execute(message, serverQueue);
 	} else if (command === 'queue') {
-		client.commands.get('queue').execute(message, serverQueue);
+		client.commands.get('queue').execute(message, args, serverQueue);
 	} else if (command === 'stop') {
 		client.commands.get('stop').execute(message, serverQueue);
 	} else if (command === 'leave') {
 		client.commands.get('leave').execute(message, serverQueue);
 	} else if (command === 'purge') {
 		client.commands.get('purge').execute(message);
+	} else if (command === 'roulette') {
+		//client.commands.get('roulette').execute(message);
 	}
 });
 

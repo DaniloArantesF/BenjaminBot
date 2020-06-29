@@ -43,6 +43,7 @@ async function handleRequest(message, uri, serverQueue) {
           volume: 5,
           playing: true,
           playingEmbed: null,
+          queueEmbed: null
         };
   
         /* Set new queue */
@@ -56,7 +57,6 @@ async function handleRequest(message, uri, serverQueue) {
         });
 
       } else {
-
         for (song in songs) {
           serverQueue.songs.push(songs[song]);
         }
@@ -76,7 +76,6 @@ async function getSpotifyPlaylist(message, playlist_Id, serverQueue) {
               'Content-Length': '0'
       }})
       .then(async response => {
-        var output = '';
         var data = response.data.items;
         var songs = [];
 
@@ -107,8 +106,7 @@ async function getSpotifyPlaylist(message, playlist_Id, serverQueue) {
         });
         return songs;
         
-      })
-      .catch(error => {
+      }).catch(error => {
         console.log(error.message);
-      })
+      });
   }

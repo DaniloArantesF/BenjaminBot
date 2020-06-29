@@ -4,24 +4,22 @@ const youtube = require('./youtube');
 const {queue} = require('./play');
 
 module.exports = {
+    help: {
+        name: 'help',
+        description: 'Displays commands, syntax and important information',
+        execute(message) {
+            return message.channel.send();
+        }
+    },
     salve: {
         name: 'salve',
         description: 'A friendly greeting message :)',
         execute(message, args) {
             message.channel.send('Saaaalve parça\nÉ nois ou não é nois?');
         }
-    },kick: {
-        name: 'kick',
-        description: '',
-        execute(message) {
-            if (!message.mentions.users.size) {
-                return message.reply('No user specified to kick');
-            }
-            const taggedUser = message.mentions.users.first();
-        }
     },skip: {
         name: 'skip',
-        description: 'Skips the current song',
+        description: '!skip - Skips the current song:',
         execute(message, serverQueue) {
             if (!serverQueue) {
               message.channel.send("A queue ta vazia, mongol");
@@ -31,22 +29,34 @@ module.exports = {
     },queue: {
         name: 'queue',
         description: 'Displays current queue',
-        execute(message, serverQueue) {
+        execute(message, args, serverQueue) {
             if (!serverQueue || !serverQueue.songs) {
                 return message.channel.send("A queue ta vazia, mongol");
-            }  
+            }
             
             var songs = serverQueue.songs;
-
+            switch(args[0]) {
+                case 'remove':
+                    const indexToRemove = parseInt(args[1], 10);
+                    if ( (indexToRemove === 0) || (indexToRemove > songs.size) ) {
+                        return message.channel.send("Invalid index. (Hint: If you want to remove current song use !skip)");
+                    } else {
+                        console.log("Removing Song[" + indexToRemove + "] from Queue...")
+                        songs.splice(indexToRemove, 1);
+                    }
+                default:
+            }
+            
             const queueEmbed = new Discord.MessageEmbed()
                 .setColor('#b700ff')
                 .setTitle('Server Queue')
                 .addFields(
                     songs.map( (song) => {
-                        return { name: songs.indexOf(song) + ": " + song.title, value: song.url, inline: true }
+                        return { name: songs.indexOf(song) + " -\t" + song.title, value: song.url, inline: true }
                     })
                 );
-
+            
+            serverQueue.queueEmbed = queueEmbed;
             message.channel.send(queueEmbed);
             message.delete();
         }
@@ -83,21 +93,45 @@ module.exports = {
         }
     },purge: {
         name: 'purge',
-        description: 'Deletes all messages on textChannel',
+        description: 'Deletes last 50 messages on textChannel',
         execute(message) {
             if (message.member.hasPermission("Administrator")) {
-                    message.channel.messages.fetch()
-                    .then(messages => {
-                        message.channel.bulkDelete(messages, true)
-                        .then(messages => console.log(`Bulk deleted ${messages.size} messages`))
-                        .catch(console.error);
-                    })
+                message.channel.messages.fetch()
+                .then(messages => {
+                    message.channel.bulkDelete(messages, true)
+                    .then(messages => console.log(`Bulk deleted ${messages.size} messages`))
                     .catch(console.error);
+                })
+                .catch(console.error);
             } else {
-                return message.channel.send("Você não tem permissão pra isso, arrombado");
+                message.channel.send("Você não tem permissão pra isso, arrombado");
             }
         }
 
+    }, roulette: {
+        name: 'roulette',
+        description: 'Specify an user to kick. A random number will be drawn and if even the user will be kicked. Otherwise caller will be kicked.',
+        execute(message) {
+            if (!message.mentions.users.size) {
+                return message.reply('No user specified to kick');
+            }
+            const callerUser = message.member;
+            const taggedUser = message.mentions.members.first();
+
+            if ((Math.random() * 100 ) % 2 == 0) {
+                taggedUser.kick()
+                .then((member) => {
+                    message.channel.send(":wave: " + member.displayName + " chupa seu lixo");
+                });
+            } else {
+                callerUser.kick()
+                .then((member) => {
+                    message.channel.send(":wave: " + member.displayName + " chupa seu lixo");
+                });
+            }
+
+
+        }
     }  
 };
 

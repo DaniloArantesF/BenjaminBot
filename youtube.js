@@ -33,6 +33,7 @@ async function handleRequest(message, args, serverQueue) {
 		title: info.title,
 		url: info.video_url,
 	};
+
 	/* Server Queue is empty */
 	if (!serverQueue) {
 		const newQueue = {
@@ -43,7 +44,9 @@ async function handleRequest(message, args, serverQueue) {
 			volume: 5,
 			playing: true,
 			playingEmbed: null,
+			queueEmbed: null
 		};
+
 		/* Set new queue */
 		queue.set(message.guild.id, newQueue);
 		newQueue.songs.push(song);
@@ -54,10 +57,8 @@ async function handleRequest(message, args, serverQueue) {
 			play(message.guild, newQueue.songs[0]);
 			message.delete();
 		});
-
 	} else { /* Queue is not empty */
 		serverQueue.songs.push(song);
-
 		const playingEmbed = new Discord.MessageEmbed()
         	.setColor('#b700ff')
         	.setTitle(serverQueue.songs[0].title)
@@ -71,7 +72,6 @@ async function handleRequest(message, args, serverQueue) {
 			.then( message => {
 				serverQueue.playingEmbed = message;
 		});
-
 		message.delete();
 		return;
 	}

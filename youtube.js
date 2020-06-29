@@ -22,11 +22,12 @@ async function handleRequest(message, args, serverQueue) {
 
 	if (!validate) {
 		var query = args.toString().replace(/,/g, " ");
-  	    var search = await youtube.search.list({part:'snippet', q: query, maxResults: 1, safeSearch:'none'});
+  	    var search = await youtube.search.list({part:'snippet', q: query, maxResults: 1, safeSearch:'none', type:'video', regionCode:'US', videoCategoryId:'10' });
   	    var url = "https://www.youtube.com/watch?v=" + search.data.items[0].id.videoId;
 	}else {
 		var url = args[0];
 	}
+
 	/* Get video information */
 	const info = await ytdl.getInfo(url);
 	var song = {

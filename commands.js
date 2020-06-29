@@ -6,14 +6,14 @@ const {queue} = require('./play');
 module.exports = {
     help: {
         name: 'help',
-        description: 'Displays commands, syntax and important information',
+        description: '!help - Displays commands, syntax and important information',
         execute(message) {
             return message.channel.send();
         }
     },
     salve: {
         name: 'salve',
-        description: 'A friendly greeting message :)',
+        description: '!salve - A friendly greeting message :)',
         execute(message, args) {
             message.channel.send('Saaaalve parça\nÉ nois ou não é nois?');
         }
@@ -64,12 +64,10 @@ module.exports = {
             message.channel.send(queueEmbed).then( message => {
                 serverQueue.queueEmbed = message;
             });
-
-            //message.delete();
         }
     },stop: {
         name: 'stop',
-        description: 'Clears out song queue',
+        description: '!stop - Stop playing current song and clear out song queue',
         execute(message, serverQueue) {
             serverQueue.songs = [];
             message.channel.send("flw mens");
@@ -96,7 +94,6 @@ module.exports = {
         name: 'spotify',
         description: 'Gets a playlist from spotify and plays the songs using Youtube',
         execute(message, serverQueue) {
-
         }
     },purge: {
         name: 'purge',

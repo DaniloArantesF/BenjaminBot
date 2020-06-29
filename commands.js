@@ -4,22 +4,47 @@ const youtube = require('./youtube');
 const {queue} = require('./play');
 
 module.exports = {
-    help: {
+    play: {
+        name: 'play',
+        description: '!play <query/url> - Play song specified by query or url'
+    },help: {
         name: 'help',
         description: '!help - Displays commands, syntax and important information',
+        hide: 0,
         execute(message) {
-            return message.channel.send();
+            var commands = []
+            for(const command of Object.keys(module.exports)) {
+                if (!module.exports[command].hide) {
+                    commands.push({
+                        name: module.exports[command].name,
+                        description: module.exports[command].description
+                    });
+                }
+            }
+
+            const helpEmbed = new Discord.MessageEmbed()
+                .setColor('#b700ff')
+                .setTitle('Bot Commands :scroll: ')
+                .addFields(
+                    commands.map( (command) => {
+                        return { name: command.name + "\n", value: command.description}
+                    })
+                );
+
+            return message.channel.send(helpEmbed)
         }
     },
     salve: {
         name: 'salve',
         description: '!salve - A friendly greeting message :)',
+        hide: 0,
         execute(message, args) {
             message.channel.send('Saaaalve parça\nÉ nois ou não é nois?');
         }
     },skip: {
         name: 'skip',
-        description: '!skip - Skips the current song:',
+        description: '!skip\tSkips the current song:',
+        hide: 0,
         execute(message, serverQueue) {
             if (!serverQueue) {
               message.channel.send("A queue ta vazia, mongol");
@@ -29,6 +54,7 @@ module.exports = {
     },queue: {
         name: 'queue',
         description: '!queue <remove> <indexToRemove> - Displays current queue.\n(Optional)Using remove and passing an index removes a song from the queue',
+        hide: 0,
         execute(message, args, serverQueue) {
             if (!serverQueue || !serverQueue.songs) {
                 return message.channel.send("The queue is empty :cry:");
@@ -68,6 +94,7 @@ module.exports = {
     },stop: {
         name: 'stop',
         description: '!stop - Stop playing current song and clear out song queue',
+        hide: 0,
         execute(message, serverQueue) {
             serverQueue.songs = [];
             message.channel.send("flw mens");
@@ -76,6 +103,7 @@ module.exports = {
     },leave: {
         name: 'leave',
         description: '!leave - Bot disconnects from the current channel and clears queue',
+        hide: 0,
         execute(message, serverQueue) {
             if (serverQueue.songs) {
                 serverQueue.songs = [];
@@ -87,17 +115,20 @@ module.exports = {
     },youtube: {
         name: 'youtube',
         description: 'Searches and Plays songs from youtube',
+        hide: 1,
         execute(message, args, serverQueue) {
             youtube.handler(message, args, serverQueue);
         }
     },spotify: {
         name: 'spotify',
         description: 'Gets a playlist from spotify and plays the songs using Youtube',
+        hide: 1,
         execute(message, serverQueue) {
         }
     },purge: {
         name: 'purge',
-        description: '!purge Deletes last 50 messages on textChannel',
+        description: '!purge <n> - Deletes last <n> messages on textChannel(n defaults to 100)',
+        hide: 0,
         execute(message, args) {
             const numToDelete = args.length > 0 ? parseInt(args[0], 10) : 99;
             if (message.member.hasPermission("Administrator")) {
@@ -116,6 +147,7 @@ module.exports = {
     },roulette: {
         name: 'roulette',
         description: '!roulette <userToKick> - Specify an user to kick. A random number will be drawn and if even the user will be kicked. Otherwise caller will be kicked.',
+        hide: 1,
         execute(message) {
             if (!message.mentions.users.size) {
                 return message.reply('No user specified to kick');

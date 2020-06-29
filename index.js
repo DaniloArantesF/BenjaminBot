@@ -45,12 +45,15 @@ client.on('message', message => {
   
 	/* User did not pass argument */
 	if (!args[0] && command === 'play') {
+		/*'Sorry, I can\'t read minds. :thinking:\nPlease specify a song'*/
 		return message.reply('tô com cara de mãe dináh, seu merda?');
 	}
 
 	/* Handle Command */
 	if (command === 'salve') {
     	client.commands.get('salve').execute(message, args);
+	} else if (command === 'help') {
+		client.commands.get('help').execute(message);
 	} else if (command === 'play') {
     	args[0].startsWith('spotify') ? client.commands.get('spotify').execute(message, args, serverQueue) : client.commands.get('youtube').execute(message, args, serverQueue)
  	} else if (command === 'skip') {

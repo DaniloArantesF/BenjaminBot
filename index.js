@@ -62,7 +62,7 @@ client.on('message', message => {
 	} else if (command === 'leave') {
 		client.commands.get('leave').execute(message, serverQueue);
 	} else if (command === 'purge') {
-		client.commands.get('purge').execute(message);
+		client.commands.get('purge').execute(message, args);
 	} else if (command === 'roulette') {
 		//client.commands.get('roulette').execute(message);
 	}

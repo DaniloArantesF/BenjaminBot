@@ -28,17 +28,22 @@ module.exports = {
         }
     },queue: {
         name: 'queue',
-        description: 'Displays current queue',
+        description: '!queue <remove> <indexToRemove> - Displays current queue.\n(Optional)Using remove and passing an index removes a song from the queue',
         execute(message, args, serverQueue) {
             if (!serverQueue || !serverQueue.songs) {
-                return message.channel.send("A queue ta vazia, mongol");
+                return message.channel.send("The queue is empty :cry:");
             }
-            
+
+            /* Delete any previous queue cmd output */
+            if (serverQueue.queueEmbed !== null) {
+                serverQueue.queueEmbed.delete();
+            }
+
             var songs = serverQueue.songs;
             switch(args[0]) {
                 case 'remove':
                     const indexToRemove = parseInt(args[1], 10);
-                    if ( (indexToRemove === 0) || (indexToRemove > songs.size) ) {
+                    if ( (indexToRemove === 0) || (indexToRemove > songs.length) ) {
                         return message.channel.send("Invalid index. (Hint: If you want to remove current song use !skip)");
                     } else {
                         console.log("Removing Song[" + indexToRemove + "] from Queue...")
@@ -49,16 +54,18 @@ module.exports = {
             
             const queueEmbed = new Discord.MessageEmbed()
                 .setColor('#b700ff')
-                .setTitle('Server Queue')
+                .setTitle('Server Queue :headphones:')
                 .addFields(
                     songs.map( (song) => {
                         return { name: songs.indexOf(song) + " -\t" + song.title, value: song.url, inline: true }
                     })
                 );
-            
-            serverQueue.queueEmbed = queueEmbed;
-            message.channel.send(queueEmbed);
-            message.delete();
+
+            message.channel.send(queueEmbed).then( message => {
+                serverQueue.queueEmbed = message;
+            });
+
+            //message.delete();
         }
     },stop: {
         name: 'stop',
@@ -70,7 +77,7 @@ module.exports = {
         }
     },leave: {
         name: 'leave',
-        description: 'Makes bot leave the channel',
+        description: '!leave - Bot disconnects from the current channel and clears queue',
         execute(message, serverQueue) {
             if (serverQueue.songs) {
                 serverQueue.songs = [];
@@ -93,10 +100,11 @@ module.exports = {
         }
     },purge: {
         name: 'purge',
-        description: 'Deletes last 50 messages on textChannel',
-        execute(message) {
+        description: '!purge Deletes last 50 messages on textChannel',
+        execute(message, args) {
+            const numToDelete = args.length > 0 ? parseInt(args[0], 10) : 99;
             if (message.member.hasPermission("Administrator")) {
-                message.channel.messages.fetch()
+                message.channel.messages.fetch({ limit: numToDelete + 1 }) /* +1 accounts for actual purge command */
                 .then(messages => {
                     message.channel.bulkDelete(messages, true)
                     .then(messages => console.log(`Bulk deleted ${messages.size} messages`))
@@ -108,9 +116,9 @@ module.exports = {
             }
         }
 
-    }, roulette: {
+    },roulette: {
         name: 'roulette',
-        description: 'Specify an user to kick. A random number will be drawn and if even the user will be kicked. Otherwise caller will be kicked.',
+        description: '!roulette <userToKick> - Specify an user to kick. A random number will be drawn and if even the user will be kicked. Otherwise caller will be kicked.',
         execute(message) {
             if (!message.mentions.users.size) {
                 return message.reply('No user specified to kick');
@@ -129,8 +137,6 @@ module.exports = {
                     message.channel.send(":wave: " + member.displayName + " chupa seu lixo");
                 });
             }
-
-
         }
     }  
 };

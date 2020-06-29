@@ -6,7 +6,7 @@ const {queue} = require('./play');
 module.exports = {
     play: {
         name: 'play',
-        description: '!play <query/url> - Play song specified by query or url'
+        description: '!play <Youtube/Spotify> - Play song specified by query, url or playlist URI\nYoutube: URL/Search String\nSpotify: playlistURI (https://prnt.sc/t8fxxt)'
     },help: {
         name: 'help',
         description: '!help - Displays commands, syntax and important information',
@@ -27,7 +27,7 @@ module.exports = {
                 .setTitle('Bot Commands :scroll: ')
                 .addFields(
                     commands.map( (command) => {
-                        return { name: command.name + "\n", value: command.description}
+                        return { name: '#' + command.name +'\n', value: command.description}
                     })
                 );
 

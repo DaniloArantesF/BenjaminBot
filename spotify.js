@@ -85,7 +85,7 @@ async function getSpotifyPlaylist(message, playlist_Id, serverQueue) {
 
         var search_requests = [];
         for (song in songs) {
-          const request = await youtube.search.list({part:'snippet', q: songs[song], maxResults: 1, safeSearch:'none'});
+          const request = await youtube.search.list({part:'snippet', q: songs[song], maxResults: 1, safeSearch:'none', type:'video', regionCode:'US', videoCategoryId:'10' });
           search_requests.push(request); 
         }
 

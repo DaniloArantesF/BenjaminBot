@@ -64,7 +64,7 @@ async function handleRequest(message, args, serverQueue) {
         	.setColor('#b700ff')
         	.setTitle(serverQueue.songs[0].title)
         	.setURL(serverQueue.songs[0].url)
-        	.setDescription("Próxima música: " + serverQueue.songs[1].title)
+        	.setDescription("Next song: " + serverQueue.songs[1].title)
 			.setThumbnail('https://media1.tenor.com/images/75f1a082d67bcd34cc4960131e905bed/tenor.gif?itemid=5505046');
 		
 		serverQueue.playingEmbed.delete();

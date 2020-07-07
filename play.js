@@ -26,7 +26,7 @@ function play(guild, song) {
         .setColor('#b700ff')
         .setTitle(song.title)
         .setURL(song.url)
-        .setDescription(serverQueue.songs.length > 1 ? "Próxima música: " + serverQueue.songs[1].title : "")
+        .setDescription(serverQueue.songs.length > 1 ? "Next song: " + serverQueue.songs[1].title : "")
         .setThumbnail('https://media1.tenor.com/images/75f1a082d67bcd34cc4960131e905bed/tenor.gif?itemid=5505046');
 
     serverQueue.textChannel.send(playingEmbed)

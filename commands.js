@@ -21,7 +21,6 @@ module.exports = {
                     });
                 }
             }
-
             const helpEmbed = new Discord.MessageEmbed()
                 .setColor('#b700ff')
                 .setTitle('Bot Commands :scroll: ')
@@ -30,7 +29,6 @@ module.exports = {
                         return { name: '#' + command.name +'\n', value: command.description}
                     })
                 );
-
             return message.channel.send(helpEmbed)
         }
     },
@@ -53,7 +51,7 @@ module.exports = {
         }
     },queue: {
         name: 'queue',
-        description: '!queue <remove> <indexToRemove> - Displays current queue.\n(Optional)Using remove and passing an index removes a song from the queue',
+        description: '!queue <remove> <indexToRemove> - Displays current queue.\n(Optional) Using remove and passing an index removes a song from the queue',
         hide: 0,
         execute(message, args, serverQueue) {
             if (!serverQueue || !serverQueue.songs) {
@@ -77,7 +75,6 @@ module.exports = {
                     }
                 default:
             }
-            
             const queueEmbed = new Discord.MessageEmbed()
                 .setColor('#b700ff')
                 .setTitle('Server Queue :headphones:')
@@ -86,7 +83,6 @@ module.exports = {
                         return { name: songs.indexOf(song) + " -\t" + song.title, value: song.url, inline: true }
                     })
                 );
-
             message.channel.send(queueEmbed).then( message => {
                 serverQueue.queueEmbed = message;
             });
@@ -123,14 +119,21 @@ module.exports = {
         name: 'spotify',
         description: 'Gets a playlist from spotify and plays the songs using Youtube',
         hide: 1,
-        execute(message, serverQueue) {
+        execute(message, args, serverQueue) {
+            spotify.handler(message, args, serverQueue);
         }
     },purge: {
         name: 'purge',
         description: '!purge <n> - Deletes last <n> messages on textChannel(n defaults to 100)',
         hide: 0,
         execute(message, args) {
+            if (!(/^\d+$/.test(args[0]))) {
+                return message.channel.send("Tá me tirando, caralho? :rage:");
+            }
             const numToDelete = args.length > 0 ? parseInt(args[0], 10) : 99;
+            if (numToDelete < 1 || numToDelete > 100) {
+                return message.channel.send("Value should be between 1 and 100.");
+            }
             if (message.member.hasPermission("Administrator")) {
                 message.channel.messages.fetch({ limit: numToDelete + 1 }) /* +1 accounts for actual purge command */
                 .then(messages => {
@@ -140,10 +143,9 @@ module.exports = {
                 })
                 .catch(console.error);
             } else {
-                message.channel.send("Você não tem permissão pra isso, arrombado");
+                return message.channel.send("You are too peasant to use this command.");
             }
         }
-
     },roulette: {
         name: 'roulette',
         description: '!roulette <userToKick> - Specify an user to kick. A random number will be drawn and if even the user will be kicked. Otherwise caller will be kicked.',

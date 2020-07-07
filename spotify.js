@@ -3,8 +3,10 @@ require('dotenv').config();
 const qs = require('qs');
 const ytdl = require('ytdl-core');
 const axios = require('axios');
+var async = require("async");
 const {play, queue} = require('./play');
 const {API} = require('./youtube');
+const { spotify } = require('./commands');
 const youtube = API;
 
 /* Following Client Authentication Flow, the credentials must be base64 encoded. 
@@ -70,7 +72,7 @@ async function handleRequest(message, uri, serverQueue) {
 async function getSpotifyPlaylist(message, playlist_Id, serverQueue) { 
     var url = 'https://api.spotify.com/v1/playlists/' + playlist_Id + '/tracks'
      
-    axios.get(url, {headers: {
+    return axios.get(url, {headers: {
               'Authorization': 'Bearer ' + spotifyToken,
               'Content-Type': 'application/json',
               'Content-Length': '0'
@@ -78,35 +80,44 @@ async function getSpotifyPlaylist(message, playlist_Id, serverQueue) {
       .then(async response => {
         var data = response.data.items;
         var songs = [];
+        var songNames = [];
 
         for (song in data) {
-          songs[song] = data[song].track.artists[0].name + " " + data[song].track.name;
+          songNames[song] = data[song].track.artists[0].name + " " + data[song].track.name;
         }
 
-        var search_requests = [];
-        for (song in songs) {
-          const request = await youtube.search.list({part:'snippet', q: songs[song], maxResults: 1, safeSearch:'none', type:'video', regionCode:'US', videoCategoryId:'10' });
-          search_requests.push(request); 
+        console.log(songNames);
+
+        var searchQueue = async.queue((song, callback) => {
+          //console.log("Processing song... " + song.name);
+          youtube.search.list({part:'snippet', q: song.name, maxResults: 1, safeSearch:'none', type:'video', regionCode:'US', videoCategoryId:'10' })
+            .then( (response) => {
+              callback(song.name, response);
+            });
+        }, 1);
+
+        for (song in songNames) {
+          //console.log("Adding to Queue... " + songNames[song]);
+          searchQueue.push({name: songNames[song]}, (songName, response) => {
+            console.log("Callback for: " + songName);
+            var url = "https://www.youtube.com/watch?v=" + response.data.items[0].id.videoId;
+            var song_info = {
+              title: songName,
+              url: url,          
+            };
+            //console.log(song_info.title + " " + song_info.url);
+            songs.push(song_info);
+            //console.log(songs.toString()); 
+          });
         }
 
-        var songNames = [...songs];
-        songs = [];
-  
-        Promise.all(search_requests).then( responses => {
-            for (response in responses) {
-              var url = "https://www.youtube.com/watch?v=" + responses[response].data.items[0].id.videoId;
-              var song_info = {
-                title: songNames[response],
-                url: url,          
-              };
-
-              console.log(song_info.title + " " + song_info.url);
-              songs.push(song);
-            }
-        });
-        return songs;
-        
-      }).catch(error => {
+        await searchQueue.drain();
+        return songs
+      })
+      .catch(error => {
         console.log(error.message);
       });
   }
+
+  module.exports.handler = handleRequest;
+  module.exports.API = spotify;

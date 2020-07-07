@@ -51,7 +51,7 @@ module.exports = {
         }
     },queue: {
         name: 'queue',
-        description: '!queue <remove> <indexToRemove> - Displays current queue.\n(Optional) Using remove and passing an index removes a song from the queue',
+        description: '!queue <remove/repeat> <index> - Displays current queue.\n(Optional) Using remove/repeat w/ an index removes or duplicates a song from the queue',
         hide: 0,
         execute(message, args, serverQueue) {
             if (!serverQueue || !serverQueue.songs) {
@@ -67,12 +67,21 @@ module.exports = {
             switch(args[0]) {
                 case 'remove':
                     const indexToRemove = parseInt(args[1], 10);
-                    if ( (indexToRemove === 0) || (indexToRemove > songs.length) ) {
+                    if ( (indexToRemove === 0) || (indexToRemove > songs.length)  || (!indexToRemove)) {
                         return message.channel.send("Invalid index. (Hint: If you want to remove current song use !skip)");
                     } else {
-                        console.log("Removing Song[" + indexToRemove + "] from Queue...")
+                        console.log("Removing Song[" + indexToRemove + "] from Queue...");
                         songs.splice(indexToRemove, 1);
                     }
+                case 'repeat':
+                    const indexToDup = parseInt(args[1], 10);
+                    console.log(indexToDup + " " + songs.length);
+                    if ( (indexToDup < 0) || (indexToDup > songs.length) || (args.length !== 2) ) {
+                        return message.channel.send("Invalid index. Use !help");
+                    } else {
+                        const dupe = {title: songs[indexToDup].title, url: songs[indexToDup].url};
+                        songs.splice(indexToDup, 0, dupe);
+                    }     
                 default:
             }
             const queueEmbed = new Discord.MessageEmbed()

@@ -58,10 +58,19 @@ async function handleRequest(message, uri, serverQueue) {
       });
 
     } else {
-      for (song in songs) {
-        serverQueue.songs.push(songs[song]);
-      }
-      //message.channel.send('Playlist adicionada com sucesso, caralho!');
+      message.channel.send('Playlist adicionada com sucesso, caralho!');
+      const playingEmbed = new Discord.MessageEmbed()
+        	.setColor('#b700ff')
+        	.setTitle(serverQueue.songs[0].title)
+        	.setURL(serverQueue.songs[0].url)
+        	.setDescription("Next song: " + serverQueue.songs[1].title)
+			.setThumbnail('https://media1.tenor.com/images/75f1a082d67bcd34cc4960131e905bed/tenor.gif?itemid=5505046');
+      serverQueue.playingEmbed.delete();
+
+      serverQueue.textChannel.send(playingEmbed)
+        .then( message => {
+          serverQueue.playingEmbed = message;
+      });
       message.delete();
     }
 }
@@ -77,7 +86,7 @@ async function getSpotifyPlaylist(message, playlist_Id, serverQueue) {
       }})
       .then(async response => {
         var data = response.data.items;
-        var songs = serverQueue || [];
+        var songs = serverQueue ? serverQueue.songs : [];
         var songNames = [];
 
         for (song in data) {

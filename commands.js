@@ -93,6 +93,7 @@ module.exports = {
         hide: 0,
         execute(message, serverQueue) {
             serverQueue.songs = [];
+            message.delete();
             message.channel.send("flw mens");
             serverQueue.connection.dispatcher.end();
         }
@@ -104,6 +105,7 @@ module.exports = {
             if (serverQueue.songs) {
                 serverQueue.songs = [];
             }
+            message.delete();
             message.channel.send("flw mens");
             serverQueue.connection.dispatcher.end();
             serverQueue.voiceChannel.leave();

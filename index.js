@@ -29,6 +29,7 @@ client.on('message', message => {
 			message.channel.send(`${message.author} vai tomar no cu`);
 		}
 	}
+
 	if (message.content.startsWith("-play")) {
 		message.channel.send(`${message.author} Tomara que morra no inferno, judas do caralho.`);
 	}
@@ -69,6 +70,16 @@ client.on('message', message => {
 	} else if (command === 'roulette') {
 		//client.commands.get('roulette').execute(message);
 	}
+});
+
+/* Websocket and Network Errors */
+client.on('shardError', error => {
+	console.error('A websocket connection encountered an error', error);
+});
+
+/* API Errors */
+process.on('unhandledRejection', error => {
+	console.error('Unhandled promise rejection:', error);
 });
 
 /* Bot LogIn */

@@ -57,7 +57,9 @@ async function handleRequest(message, args, serverQueue) {
 			newQueue.connection = connection;
 			play(message.guild, newQueue.songs[0]);
 			message.delete();
-		});
+		}).catch( error => {
+			console.error("There was an error joining into the channel", error);
+		})
 	} else { /* Queue is not empty */
 		serverQueue.songs.push(song);
 		const playingEmbed = new Discord.MessageEmbed()
@@ -67,13 +69,12 @@ async function handleRequest(message, args, serverQueue) {
         	.setDescription("Next song: " + serverQueue.songs[1].title)
 			.setThumbnail('https://media1.tenor.com/images/75f1a082d67bcd34cc4960131e905bed/tenor.gif?itemid=5505046');
 		
-		serverQueue.playingEmbed.delete();
-
+		serverQueue.playingEmbed.delete().catch( error => console.error("Error deleting old queue", error));
 		serverQueue.textChannel.send(playingEmbed)
-			.then( message => {
-				serverQueue.playingEmbed = message;
+		.then( message => {
+			serverQueue.playingEmbed = message;
 		});
-		message.delete();
+		message.delete().catch( error => console.error("Error deleting old user message", error));
 		return;
 	}
 }

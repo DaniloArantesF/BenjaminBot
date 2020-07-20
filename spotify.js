@@ -26,7 +26,7 @@ axios({ method: 'post',
     }).then(function (response) {
         spotifyToken = response.data.access_token;
     }).catch(function (error) {
-        console.log(error.message);
+        console.error("Error getting spotify Authentication", error.message);
     });
 
 async function handleRequest(message, uri, serverQueue) {
@@ -94,7 +94,6 @@ async function getSpotifyPlaylist(message, playlist_Id, serverQueue) {
         }
 
         var searchQueue = async.queue((song, callback) => {
-          //console.log("\nProcessing " + song.name + "...");
           youtube.search.list({part:'snippet', q: song.name, maxResults: 1, safeSearch:'none', type:'video', regionCode:'US', videoCategoryId:'10' })
             .then( (response) => {
               callback(song.name, response);
@@ -102,23 +101,19 @@ async function getSpotifyPlaylist(message, playlist_Id, serverQueue) {
         }, 1);
 
         for (song in songNames) {
-          //console.log("Pushing " + songNames[song] + "...");
           searchQueue.push({name: songNames[song]}, (songName, response) => {
             var url = "https://www.youtube.com/watch?v=" + response.data.items[0].id.videoId;
             var song_info = {
               title: songName,
               url: url,          
             };
-            //console.log("\nFinished processing " + songName + "...");
             songs.push(song_info);
           });
         }
         const isReady = async () => {
           if (searchQueue.length() < songNames.length) {
-            //console.log("ready")
             return true;
           } else {
-            //console.log("not ready");
             setTimeout(isReady, 100);
           }
         }

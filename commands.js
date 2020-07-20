@@ -73,15 +73,17 @@ module.exports = {
                         console.log("Removing Song[" + indexToRemove + "] from Queue...");
                         songs.splice(indexToRemove, 1);
                     }
+                    break;
                 case 'repeat':
                     const indexToDup = parseInt(args[1], 10);
-                    console.log(indexToDup + " " + songs.length);
                     if ( (indexToDup < 0) || (indexToDup > songs.length) || (args.length !== 2) ) {
                         return message.channel.send("Invalid index. Use !help");
                     } else {
                         const dupe = {title: songs[indexToDup].title, url: songs[indexToDup].url};
                         songs.splice(indexToDup, 0, dupe);
-                    }     
+                    }
+                    break;
+                case 'next':
                 default:
             }
             const queueEmbed = new Discord.MessageEmbed()

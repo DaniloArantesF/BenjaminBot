@@ -4,6 +4,15 @@ const Discord = require('discord.js');
 const { prefix } = require('./config.json');
 const commands = require('./commands.js');
 const {queue} = require('./play');
+const pino = require('pino')
+const logger = pino({
+  destination: './log.json',
+  prettyPrint: {
+   levelFirst: true
+  }
+  });
+
+const prus = ['pruu porra', 'pruuuuuuu', 'pru pra caralhoo', 'pru pra vc tb men', 'pruuuuuuuuu'];
 
 /* Set client connection and Create command collection */
 const client = new Discord.Client();
@@ -15,7 +24,7 @@ for (const command of Object.keys(commands)) {
 }
 
 client.once('ready', () => {
-	console.log('Bot Running');
+	logger.info("Bot Started.")
 });
 
 /* Message Handler */
@@ -52,7 +61,10 @@ client.on('message', message => {
 
 	/* Handle Command */
 	if (command === 'salve') {
-    	client.commands.get('salve').execute(message, args);
+      client.commands.get('salve').execute(message, args);
+  } else if (command.startsWith("pru")) {
+    var index = Math.floor(Math.random() * prus.length);
+      message.channel.send(prus[index]);
 	} else if (command === 'help') {
 		client.commands.get('help').execute(message);
 	} else if (command === 'play') {

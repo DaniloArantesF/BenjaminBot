@@ -17,6 +17,8 @@
     "ffmpeg-static": "^4.2.2",
     "googleapis": "^51.0.0",
     "node-opus": "^0.3.3",
+    "pino": "^6.4.1",
+    "pino-pretty": "^4.1.0",
     "qs": "^6.9.4",
     "querystring": "^0.2.0",
     "ytdl-core": "^2.1.4"

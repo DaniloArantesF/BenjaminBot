@@ -46,7 +46,7 @@ module.exports = {
         execute(message, serverQueue) {
             if (!serverQueue) {
               message.channel.send("A queue ta vazia, mongol");
-            }  
+            }
             serverQueue.connection.dispatcher.end();
         }
     },queue: {
@@ -182,7 +182,5 @@ module.exports = {
                 });
             }
         }
-    }  
+    }
 };
-
-const memes = ["https://www.youtube.com/watch?v=hjGZLnja1o8", "https://www.youtube.com/watch?v=cE0wfjsybIQ", "https://www.youtube.com/watch?v=oT3mCybbhf0", "https://www.youtube.com/watch?v=PHgc8Q6qTjc", "https://www.youtube.com/watch?v=uE-1RPDqJAY", "https://www.youtube.com/watch?v=ZZ5LpwO-An4", "https://www.youtube.com/watch?v=9oMXMj-8Sqg", "https://www.youtube.com/watch?v=609HhzQ6zfU", "https://www.youtube.com/watch?v=E8H-67ILaqc", "https://www.youtube.com/watch?v=4fWyzwo1xg0&feature=youtu.be", ]

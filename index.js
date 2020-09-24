@@ -4,15 +4,6 @@ const Discord = require('discord.js');
 const { prefix } = require('./config.json');
 const commands = require('./commands.js');
 const {queue} = require('./play');
-const pino = require('pino')
-const logger = pino({
-  destination: './log.json',
-  prettyPrint: {
-   levelFirst: true
-  }
-  });
-
-const prus = ['pruu porra', 'pruuuuuuu', 'pru pra caralhoo', 'pru pra vc tb men', 'pruuuuuuuuu'];
 
 /* Set client connection and Create command collection */
 const client = new Discord.Client();
@@ -24,7 +15,7 @@ for (const command of Object.keys(commands)) {
 }
 
 client.once('ready', () => {
-	logger.info("Bot Started.")
+	console.log("Bot Started.");
 });
 
 /* Message Handler */
@@ -39,10 +30,6 @@ client.on('message', message => {
 		}
 	}
 
-	if (message.content.startsWith("-play")) {
-		message.channel.send(`${message.author} Tomara que morra no inferno, judas do caralho.`);
-	}
-
 	/* Check if message is valid command */
 	if ( (!message.content.startsWith(prefix)) || (message.author.bot) ) {
 		return;
@@ -52,23 +39,19 @@ client.on('message', message => {
 	const args = message.content.slice(prefix.length).split(/ +/);
 	const command = args.shift().toLowerCase();
 	const serverQueue = queue.get(message.guild.id);
-  
+
 	/* User did not pass argument */
 	if (!args[0] && command === 'play') {
-		/*'Sorry, I can\'t read minds. :thinking:\nPlease specify a song'*/
-		return message.reply('tô com cara de mãe dináh, seu merda?');
+		return message.reply('Sorry, I can\'t read minds. :thinking:\nPlease specify a song');
 	}
 
 	/* Handle Command */
 	if (command === 'salve') {
       client.commands.get('salve').execute(message, args);
-  } else if (command.startsWith("pru")) {
-    var index = Math.floor(Math.random() * prus.length);
-      message.channel.send(prus[index]);
-	} else if (command === 'help') {
+  } else if (command === 'help') {
 		client.commands.get('help').execute(message);
 	} else if (command === 'play') {
-    	args[0].startsWith('spotify') ? client.commands.get('spotify').execute(message, args, serverQueue) : client.commands.get('youtube').execute(message, args, serverQueue)
+      args[0].startsWith('spotify') ? client.commands.get('spotify').execute(message, args, serverQueue) : client.commands.get('youtube').execute(message, args, serverQueue)
  	} else if (command === 'skip') {
 		client.commands.get('skip').execute(message, serverQueue);
 	} else if (command === 'queue') {

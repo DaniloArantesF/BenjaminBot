@@ -16,7 +16,7 @@ async function handleRequest(message, args, serverQueue) {
 	if (!voiceChannel) {
 		return message.reply('Entra num canal de voz, né mongol.');
 	}
-	
+
 	/* TODO: Validate input for malicious and non-related urls */
 	var validate = ytdl.validateURL(args[0]);
 
@@ -31,8 +31,8 @@ async function handleRequest(message, args, serverQueue) {
 	/* Get video information */
 	const info = await ytdl.getInfo(url);
 	var song = {
-		title: info.title,
-		url: info.video_url,
+		title: info.player_response.videoDetails.title,
+		url,
 	};
 
 	/* Server Queue is empty */
@@ -68,7 +68,7 @@ async function handleRequest(message, args, serverQueue) {
         	.setURL(serverQueue.songs[0].url)
         	.setDescription("Next song: " + serverQueue.songs[1].title)
 			.setThumbnail('https://media1.tenor.com/images/75f1a082d67bcd34cc4960131e905bed/tenor.gif?itemid=5505046');
-		
+
 		serverQueue.playingEmbed.delete().catch( error => console.error("Error deleting old queue", error));
 		serverQueue.textChannel.send(playingEmbed)
 		.then( message => {

@@ -12,8 +12,10 @@ function play(guild, song) {
         queue.delete(guild.id);
         return;
 	}
+
+  console.log(song);
 	/* Create stream object from song url */
-    const stream = ytdl(song.url, { filter: 'audioonly', 
+    const stream = ytdl(song.url, { filter: 'audioonly',
                                                 highWaterMark: 1<<25,   /* Stream was ending too soon. This seems to fix it :) https://bit.ly/2zXEZ4H */
                         });
     var dispatcher = serverQueue.connection.play(stream);
@@ -37,7 +39,7 @@ function play(guild, song) {
         serverQueue.songs.shift();
         play(guild, serverQueue.songs[0]);
 	});
-	
+
 	/* Error */
 	dispatcher.on('error', error => console.log("Deu erro, caralho\n" + error));
 }
